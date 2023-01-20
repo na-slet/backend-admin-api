@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from migrations.database.models.events import EventType, CategoryType
 from migrations.database.models.participations import ParticipationStages
 
+
 class EventSearch(BaseModel):
     start_date: date = Field(..., description='Начальная дата промежутка поиска')
     end_date: date = Field(None, description='Конечная дата промежутка поиска')

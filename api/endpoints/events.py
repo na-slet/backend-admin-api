@@ -28,7 +28,7 @@ async def get_users_on_event(
     user = await get_user_by_email_or_phone(identity,session)
     event = await get_user_event(user, event, session)
     users = await get_event_users(user, event, session)
-    return serialize_models(users, UserOut)
+    return [UserOut(**el) for el in users]
 
 
 @event_router.post("/event", response_model=SuccessfullResponse)

@@ -38,14 +38,25 @@ async def get_user_events(user: Users, session: AsyncSession) -> list[Events]:
 
 
 async def get_event_users(user: Users, event: EventIn, session: AsyncSession) -> list[Users]:
+    def row2dict(row):
+        d = {}
+        for column in row.__table__.columns:
+            d[column.name] = str(getattr(row, column.name))
+
+        return d
     try:
-        query = select(Users, Participations.participation_stage, Participations.payment_id).join(Participations, Events.id == Participations.event_id).where(
+        query = select(Users, Participations).join(
+            Participations, Users.id == Participations.user_id
+        ).join(
+            Events, Events.id == Participations.event_id
+        ).where(
             and_(
                 Participations.event_id == str(event.id),
                 Events.creator_id == str(user.id)
             )
         )
-        users = (await session.execute(query)).scalars().all()
+        t = (await session.execute(query))
+        users = [{**row2dict(el[0]), **row2dict(el[1])} for el in list(t)]
         return users
     except IntegrityError as e:
         raise InternalServerError(e) from e
