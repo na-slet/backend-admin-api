@@ -9,8 +9,8 @@ from api.utils.authentication import create_access_token, get_password_hash, ver
 from api.exceptions.common import ForbiddenException
 from api.schemas.common import SuccessfullResponse, TokenOut, TokenIn
 from migrations.database.connection.session import get_session
-from api.schemas.events import EventOut, EventIn, UserEvent, EventNew
-from api.schemas.users import UserOut
+from api.schemas.events import EventOut, EventIn, UserEvent, EventNew, Participation
+from api.schemas.users import UserOut, UserParticipation
 from api.services.users import get_user_by_email_or_phone
 from api.services.events import get_user_event, get_event_users, get_user_events, create_new_event, delete_event, change_participation_status
 from api.utils.formatter import serialize_models
@@ -19,16 +19,19 @@ from api.utils.formatter import serialize_models
 event_router = APIRouter(tags=["Функции создателя"])
 
 
-@event_router.get("/event/users", response_model=list[UserOut])
+@event_router.get("/event/users", response_model=UserParticipation)
 async def get_users_on_event(
     identity: str = Depends(get_user_identity),
     event: EventIn = Depends(),
     session: AsyncSession = Depends(get_session),
-) -> list[UserOut]:
+) -> UserParticipation:
     user = await get_user_by_email_or_phone(identity,session)
     event = await get_user_event(user, event, session)
     users = await get_event_users(user, event, session)
-    return [UserOut(**el) for el in users]
+    for el in users:
+        user, participation = el
+        user, participation = UserOut.from_orm(user), Participation.from_orm(participation)
+    return UserParticipation(user=user, participation=participation)
 
 
 @event_router.post("/event", response_model=SuccessfullResponse)

@@ -37,29 +37,18 @@ async def get_user_events(user: Users, session: AsyncSession) -> list[Events]:
         raise InternalServerError(e) from e
 
 
-async def get_event_users(user: Users, event: EventIn, session: AsyncSession) -> list[Users]:
-    def row2dict(row):
-        d = {}
-        for column in row.__table__.columns:
-            d[column.name] = str(getattr(row, column.name))
-
-        return d
-    try:
-        query = select(Users, Participations).join(
-            Participations, Users.id == Participations.user_id
-        ).join(
-            Events, Events.id == Participations.event_id
-        ).where(
-            and_(
-                Participations.event_id == str(event.id),
-                Events.creator_id == str(user.id)
-            )
+async def get_event_users(user: Users, event: EventIn, session: AsyncSession) -> list[(Users,Participations)]:
+    query = select(Users, Participations).join(
+        Participations, Users.id == Participations.user_id
+    ).join(
+        Events, Events.id == Participations.event_id
+    ).where(
+        and_(
+            Participations.event_id == str(event.id),
+            Events.creator_id == str(user.id)
         )
-        t = (await session.execute(query))
-        users = [{**row2dict(el[0]), **row2dict(el[1])} for el in list(t)]
-        return users
-    except IntegrityError as e:
-        raise InternalServerError(e) from e
+    )
+    return (await session.execute(query)).all()
 
 
 async def create_new_event(user: Users, event: EventNew, session: AsyncSession) -> None:
@@ -68,6 +57,7 @@ async def create_new_event(user: Users, event: EventNew, session: AsyncSession) 
             name=event.name,
             description=event.description,
             short_description=event.short_description,
+            logo_variant=event.logo_variant,
             city=event.city,
             reg_end_date=event.reg_end_date,
             start_date=event.start_date,
@@ -82,7 +72,6 @@ async def create_new_event(user: Users, event: EventNew, session: AsyncSession) 
             address=event.address,
             latitude=event.latitude,
             longitude=event.longitude,
-            logo_id=None, # TODO: add file upload
             creator_id=str(user.id)
         )
         await session.execute(query)

@@ -4,7 +4,7 @@ from enum import Enum
 from datetime import datetime, date
 from fastapi import Depends, File, UploadFile, Form
 from pydantic import BaseModel, Field
-from migrations.database.models.events import EventType, CategoryType
+from migrations.database.models.events import EventType, CategoryType, LogoVariant
 from migrations.database.models.participations import ParticipationStages
 
 
@@ -24,6 +24,7 @@ class EventOut(BaseModel):
     name: str = Field(None, description='Название слёта')
     description: str = Field(None, description='Описание слёта')
     short_description: str = Field(None, description='Короткое описание слёта')
+    logo_variant: LogoVariant = Field(None, description='Вариант логотипа')
     city: str = Field(None, description='Локация слёта')
     reg_end_date: datetime = Field(None, description='Окончание регистрации')
     start_date: datetime = Field(None, description='Начало слёта')
@@ -38,7 +39,6 @@ class EventOut(BaseModel):
     address: str = Field(None, description='Адрес слёта')
     latitude: float = Field(None, description='Широта места слёта')
     longitude: float = Field(None, description='Долгота места слёта')
-    logo: UploadFile = File(None, description='Лого слёта')
 
     class Config:
         orm_mode = True
@@ -52,6 +52,7 @@ class EventNew(BaseModel):
     name: str = Field(..., description='Название слёта')
     description: str = Field(None, description='Описание слёта')
     short_description: str = Field(None, description='Короткое описание слёта')
+    logo_variant: LogoVariant = Field(None, description='Вариант логотипа')
     city: str = Field(None, description='Локация слёта')
     reg_end_date: datetime = Field(..., description='Окончание регистрации')
     start_date: datetime = Field(..., description='Начало слёта')
@@ -66,4 +67,11 @@ class EventNew(BaseModel):
     address: str = Field(..., description='Адрес слёта')
     latitude: float = Field(None, description='Широта места слёта')
     longitude: float = Field(None, description='Долгота места слёта')
-    logo: UploadFile = File(None, description='Лого слёта')
+
+
+class Participation(BaseModel):
+    participation_stage: ParticipationStages = Field(None, description='Стадия принятия на слёт')
+    payment_id: str = Field(None, description='Скрин об оплате')
+
+    class Config:
+        orm_mode = True

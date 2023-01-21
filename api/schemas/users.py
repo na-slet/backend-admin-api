@@ -5,6 +5,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 from migrations.database.models.users import Genders
 from migrations.database.models.events import EventType
+from api.schemas.events import Participation
 
 
 class UserProfile(BaseModel):
@@ -21,9 +22,27 @@ class UserProfile(BaseModel):
         orm_mode = True
 
 
-class UserOut(UserProfile):
-    status: EventType = Field(None, description='Статус на слёте')
-    payment_id: str = Field(None, description='Ссылка на оплату')
+class UserOut(BaseModel):
+    first_name: str = Field(None, description='Имя пользователя')
+    last_name: str = Field(None, description='Фамилия пользователя')
+    gender: Genders = Field(None, description='Пол пользователя')
+    phone: str = Field(None, description='Телефон пользователя')
+    parent_phone: str = Field(None, description='Телефон родителя')
+    parent_first_name: str = Field(None, description='Имя родителя')
+    parent_middle_name: str = Field(None, description='Отчество родителя')
+    parent_last_name: str = Field(None, description='Фамилия родителя')
+    parent_email: str = Field(None, description='Email родителя')
+    email: str = Field(None, description='Почта пользователя')
+    avatar_id: str = Field(None, description='Аватарка пользователя')
+    city: str = Field(None, description='Город пользователя')
+    tg_link: str = Field(None, description='Ссылка на Telegram пользователя')
+    birth_date: date = Field(None, description='Дата рождения пользователя')
+    union_id: UUID = Field(None, description='UUID объединения')
 
     class Config:
         orm_mode = True
+
+
+class UserParticipation(BaseModel):
+    participation: Participation
+    user: UserOut
