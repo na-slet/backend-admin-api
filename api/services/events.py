@@ -57,6 +57,7 @@ async def create_new_event(user: Users, event: EventNew, session: AsyncSession) 
             name=event.name,
             description=event.description,
             short_description=event.short_description,
+            price=event.price,
             logo_variant=event.logo_variant,
             city=event.city,
             reg_end_date=event.reg_end_date,

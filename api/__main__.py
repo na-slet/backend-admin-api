@@ -9,7 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from api.endpoints.events import event_router
 
 
-app = FastAPI(title="Na-slet client API")
+app = FastAPI(title="Na-slet creator API")
 origins = ["*"]
 
 
