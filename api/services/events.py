@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, and_, or_,delete, update
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from api.schemas.events import EventIn, EventNew, UserEvent
+from api.schemas.events import EventIn, EventNew, UserEvent, EventOut
 
 
 async def get_user_event(user: Users, event: EventIn, session: AsyncSession) -> Events:
@@ -101,6 +101,38 @@ async def change_participation_status(user: Users, user_event: UserEvent, sessio
         ).where(and_(
             Participations.user_id == str(user.id),
             Participations.event_id == str(user_event.id),
+        ))
+        await session.execute(query)
+        await session.commit()
+    except IntegrityError as e:
+        raise InternalServerError(e) from e
+
+
+async def update_event(user: Users, user_event: EventOut, session: AsyncSession) -> None:
+    try:
+        query = update(Events).values(
+            name=func.coalesce(user_event.name, Events.name),
+            description=func.coalesce(user_event.description, Events.description),
+            short_description=func.coalesce(user_event.short_description, Events.short_description),
+            price=func.coalesce(user_event.price, Events.price),
+            logo_variant=func.coalesce(user_event.logo_variant, Events.logo_variant),
+            city=func.coalesce(user_event.city, Events.city),
+            reg_end_date=func.coalesce(user_event.reg_end_date, Events.reg_end_date),
+            start_date=func.coalesce(user_event.start_date, Events.start_date),
+            end_date=func.coalesce(user_event.end_date, Events.end_date),
+            total_places=func.coalesce(user_event.total_places, Events.total_places),
+            url_link=func.coalesce(user_event.url_link, Events.url_link),
+            category_type=func.coalesce(user_event.category_type, Events.category_type),
+            event_type=func.coalesce(user_event.event_type, Events.event_type),
+            union_id=func.coalesce(user_event.union_id, Events.union_id),
+            min_age=func.coalesce(user_event.min_age, Events.min_age),
+            max_age=func.coalesce(user_event.max_age, Events.max_age),
+            address=func.coalesce(user_event.address, Events.address),
+            latitude=func.coalesce(user_event.latitude, Events.latitude),
+            longitude=func.coalesce(user_event.longitude, Events.longitude),
+        ).where(and_(
+            Events.creator_id == str(user.id),
+            Events.id == str(user_event.id)
         ))
         await session.execute(query)
         await session.commit()
