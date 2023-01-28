@@ -5,6 +5,7 @@ from datetime import datetime, date
 from fastapi import Depends, File, UploadFile, Form
 from pydantic import BaseModel, Field
 from migrations.database.models.events import EventType, CategoryType, LogoVariant
+from migrations.database.models.events import Visibility
 from migrations.database.models.participations import ParticipationStages
 
 
@@ -24,6 +25,7 @@ class EventOut(BaseModel):
     name: str = Field(None, description='Название слёта')
     description: str = Field(None, description='Описание слёта')
     short_description: str = Field(None, description='Короткое описание слёта')
+    visibility: Visibility = Field(None, description='Видимость слёта')
     price: float = Field(None, description='Цена участия на слёте')
     logo_variant: LogoVariant = Field(None, description='Вариант логотипа')
     city: str = Field(None, description='Локация слёта')
@@ -53,6 +55,7 @@ class EventNew(BaseModel):
     name: str = Field(..., description='Название слёта')
     description: str = Field(None, description='Описание слёта')
     short_description: str = Field(None, description='Короткое описание слёта')
+    visibility: Visibility = Field(None, description='Видимость слёта')
     price: float = Field(None, description='Цена участия на слёте',gt=0)
     logo_variant: LogoVariant = Field(..., description='Вариант логотипа')
     city: str = Field(None, description='Локация слёта')
