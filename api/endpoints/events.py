@@ -19,7 +19,7 @@ from api.utils.formatter import serialize_models
 event_router = APIRouter(tags=["Функции создателя"])
 
 
-@event_router.get("/event/users", response_model=UserParticipation)
+@event_router.get("/event/users", response_model=list[UserParticipation])
 async def get_users_on_event(
     identity: str = Depends(get_user_identity),
     event: EventIn = Depends(),
@@ -29,6 +29,7 @@ async def get_users_on_event(
     event = await get_user_event(user, event, session)
     users = await get_event_users(user, event, session)
     result = list()
+    print(users)
     for el in users:
         user, participation = el
         user, participation = UserOut.from_orm(user), Participation.from_orm(participation)
