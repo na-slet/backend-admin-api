@@ -24,14 +24,16 @@ async def get_users_on_event(
     identity: str = Depends(get_user_identity),
     event: EventIn = Depends(),
     session: AsyncSession = Depends(get_session),
-) -> UserParticipation:
+) -> list[UserParticipation]:
     user = await get_user_by_email_or_phone(identity,session)
     event = await get_user_event(user, event, session)
     users = await get_event_users(user, event, session)
+    result = list()
     for el in users:
         user, participation = el
         user, participation = UserOut.from_orm(user), Participation.from_orm(participation)
-    return UserParticipation(user=user, participation=participation)
+        result.append(UserParticipation(user=user, participation=participation))
+    return result
 
 
 @event_router.post("/event", response_model=SuccessfullResponse)
