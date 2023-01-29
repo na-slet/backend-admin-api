@@ -23,6 +23,7 @@ class UserProfile(BaseModel):
 
 
 class UserOut(BaseModel):
+    id: UUID = Field(None, description='UUID пользователя')
     first_name: str = Field(None, description='Имя пользователя')
     last_name: str = Field(None, description='Фамилия пользователя')
     gender: Genders = Field(None, description='Пол пользователя')
