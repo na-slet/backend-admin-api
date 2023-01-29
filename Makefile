@@ -20,4 +20,4 @@ build:
 
 run-docker:
 	docker container rm na-slet-creator-api || true
-	docker run --name na-slet-creator-api -p ${FASTAPI_PORT}:${FASTAPI_PORT} --restart always --network na-slet-network na-slet-creator-api
+	docker run --name na-slet-creator-api -d -p ${FASTAPI_PORT}:${FASTAPI_PORT} --restart always --network na-slet-network na-slet-creator-api
