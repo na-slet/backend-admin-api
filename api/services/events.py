@@ -103,7 +103,7 @@ async def change_participation_status(creator: Users, user_event: UserEvent, ses
             Participations.user_id == str(user_event.user_id),
             Participations.event_id == str(user_event.event_id),
             Participations.event_id.in_(select(Events.id).where(Events.creator_id == creator.id))
-        ))
+        )).execution_options(synchronize_session="fetch")
         await session.execute(query)
         await session.commit()
     except IntegrityError as e:
@@ -116,7 +116,7 @@ async def kick_user_from_participation(creator: Users, user_event_kick: UserEven
           Participations.event_id == str(user_event_kick.event_id),
           Participations.user_id == str(user_event_kick.user_id),
           Participations.event_id.in_(select(Events.id).where(Events.creator_id == creator.id))
-        ))
+        )).execution_options(synchronize_session="fetch")
         await session.execute(query)
         await session.commit()
     except IntegrityError as e:
