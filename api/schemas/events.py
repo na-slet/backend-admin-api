@@ -16,8 +16,9 @@ class EventSearch(BaseModel):
 
 
 class UserEvent(BaseModel):
-    id: UUID = Field(..., description='UUID слёта')
-    stage: ParticipationStages = Field(..., description='Стадия принятия на слёт')
+    event_id: UUID
+    user_id: UUID
+    stage: ParticipationStages
 
 class UserEventKick(BaseModel):
     event_id: UUID

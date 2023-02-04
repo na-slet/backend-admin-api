@@ -95,13 +95,14 @@ async def delete_event(user: Users, user_event: EventIn, session: AsyncSession) 
         raise InternalServerError(e) from e
 
 
-async def change_participation_status(user: Users, user_event: UserEvent, session: AsyncSession) -> None:
+async def change_participation_status(creator: Users, user_event: UserEvent, session: AsyncSession) -> None:
     try:
         query = update(Participations).values(
             participation_stage=user_event.stage
         ).where(and_(
-            Participations.user_id == str(user.id),
-            Participations.event_id == str(user_event.id),
+            Participations.user_id == str(user_event.user_id),
+            Participations.event_id == str(user_event.event_id),
+            Participations.event_id.in_(select(Events.id).where(Events.creator_id == creator.id))
         ))
         await session.execute(query)
         await session.commit()
@@ -112,8 +113,8 @@ async def change_participation_status(user: Users, user_event: UserEvent, sessio
 async def kick_user_from_participation(creator: Users, user_event_kick: UserEventKick, session: AsyncSession) -> None:
     try:
         query = delete(Participations).where(and_(
-          Participations.event_id == user_event_kick.event_id,
-          Participations.user_id == user_event_kick.user_id,
+          Participations.event_id == str(user_event_kick.event_id),
+          Participations.user_id == str(user_event_kick.user_id),
           Participations.event_id.in_(select(Events.id).where(Events.creator_id == creator.id))
         ))
         await session.execute(query)
