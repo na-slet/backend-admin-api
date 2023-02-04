@@ -61,8 +61,8 @@ async def delete_event_by_id(
 
 @event_router.put("/user/event/status", response_model=SuccessfullResponse)
 async def change_payment_status(
+    user_event: UserEvent,
     identity: str = Depends(get_user_identity),
-    user_event: UserEvent = Depends(),
     session: AsyncSession = Depends(get_session)
 ) -> SuccessfullResponse:
     user = await get_user_by_email_or_phone(identity, session)
