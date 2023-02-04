@@ -20,8 +20,8 @@ class UserEvent(BaseModel):
     stage: ParticipationStages = Field(..., description='Стадия принятия на слёт')
 
 class UserEventKick(BaseModel):
-    event_id: UUID = Field(..., description='UUID слёта')
-    user_id: UUID = Field(..., description='UUID пользователя')
+    event_id: UUID
+    user_id: UUID
 
 
 class EventOut(BaseModel):

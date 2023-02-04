@@ -73,7 +73,7 @@ async def change_payment_status(
 async def kick_user(
     user_event_kick: UserEventKick,
     identity: str = Depends(get_user_identity),
-    session: AsyncSession = Depends()
+    session: AsyncSession = Depends(get_session)
 ) -> SuccessfullResponse:
     user = await get_user_by_email_or_phone(identity, session)
     await kick_user_from_participation(user, user_event_kick, session)
