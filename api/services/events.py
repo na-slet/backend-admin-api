@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, and_, or_,delete, update
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from api.schemas.events import EventIn, EventNew, UserEvent, EventOut
+from api.schemas.events import EventIn, EventNew, UserEvent, EventOut, UserEventKick
 
 
 async def get_user_event(user: Users, event: EventIn, session: AsyncSession) -> Events:
@@ -108,6 +108,18 @@ async def change_participation_status(user: Users, user_event: UserEvent, sessio
     except IntegrityError as e:
         raise InternalServerError(e) from e
 
+
+async def kick_user_from_participation(creator: Users, user_event_kick: UserEventKick, session: AsyncSession) -> None:
+    try:
+        query = delete(Participations).where(and_(
+          Participations.event_id == user_event_kick.event_id,
+          Participations.user_id == user_event_kick.user_id,
+          Participations.event_id.in_(select(Events.id).where(Events.creator_id == creator.id))
+        ))
+        await session.execute(query)
+        await session.commit()
+    except IntegrityError as e:
+        raise InternalServerError(e) from e
 
 async def update_event(user: Users, user_event: EventOut, session: AsyncSession) -> None:
     try:

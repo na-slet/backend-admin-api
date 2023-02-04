@@ -9,10 +9,10 @@ from api.utils.authentication import create_access_token, get_password_hash, ver
 from api.exceptions.common import ForbiddenException
 from api.schemas.common import SuccessfullResponse, TokenOut, TokenIn
 from migrations.database.connection.session import get_session
-from api.schemas.events import EventOut, EventIn, UserEvent, EventNew, Participation
+from api.schemas.events import EventOut, EventIn, UserEvent, EventNew, Participation, UserEventKick
 from api.schemas.users import UserOut, UserParticipation
 from api.services.users import get_user_by_email_or_phone
-from api.services.events import get_user_event, get_event_users, get_user_events, create_new_event, delete_event, update_event, change_participation_status
+from api.services.events import get_user_event, get_event_users, get_user_events, create_new_event, delete_event, update_event, change_participation_status, kick_user_from_participation
 from api.utils.formatter import serialize_models
 
 
@@ -67,6 +67,16 @@ async def change_payment_status(
 ) -> SuccessfullResponse:
     user = await get_user_by_email_or_phone(identity, session)
     await change_participation_status(user, user_event, session)
+    return SuccessfullResponse()
+
+@event_router.post("/user/event/kick", response_model=SuccessfullResponse)
+async def kick_user(
+    user_event_kick: UserEventKick,
+    identity: str = Depends(get_user_identity),
+    session: AsyncSession = Depends()
+) -> SuccessfullResponse:
+    user = await get_user_by_email_or_phone(identity, session)
+    await kick_user_from_participation(user, user_event_kick, session)
     return SuccessfullResponse()
 
 
