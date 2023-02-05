@@ -1,4 +1,4 @@
-
+from typing import Optional
 from uuid import UUID
 from enum import Enum
 from datetime import datetime, date
@@ -54,6 +54,9 @@ class EventOut(BaseModel):
 
 class EventIn(BaseModel):
     id: UUID = Field(..., description='UUID слёта')
+
+class EventInOptional(BaseModel):
+    id: Optional[UUID]
 
 
 class EventNew(BaseModel):

@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Form, Body
 from fastapi.param_functions import Depends
@@ -9,7 +10,7 @@ from api.utils.authentication import create_access_token, get_password_hash, ver
 from api.exceptions.common import ForbiddenException
 from api.schemas.common import SuccessfullResponse, TokenOut, TokenIn
 from migrations.database.connection.session import get_session
-from api.schemas.events import EventOut, EventIn, UserEvent, EventNew, Participation, UserEventKick
+from api.schemas.events import EventOut, EventIn, UserEvent, EventNew, Participation, UserEventKick, EventInOptional
 from api.schemas.users import UserOut, UserParticipation
 from api.services.users import get_user_by_email_or_phone
 from api.services.events import get_user_event, get_event_users, get_user_events, create_new_event, delete_event, update_event, change_participation_status, kick_user_from_participation
@@ -82,8 +83,8 @@ async def kick_user(
 
 @event_router.put("/user/event", response_model=SuccessfullResponse)
 async def update_user_event(
+    user_event: EventOut,
     identity: str = Depends(get_user_identity),
-    user_event: EventOut = Depends(),
     session: AsyncSession = Depends(get_session)
 ) -> SuccessfullResponse:
     user = await get_user_by_email_or_phone(identity, session)
@@ -94,8 +95,9 @@ async def update_user_event(
 @event_router.get('/user/events', response_model=list[EventOut])
 async def get_created_events(
     identity: str = Depends(get_user_identity),
+    event_id: EventInOptional = Depends(),
     session: AsyncSession = Depends(get_session)
 ) -> list[EventOut]:
     user = await get_user_by_email_or_phone(identity, session)
-    events = await get_user_events(user, session)
+    events = await get_user_events(user, session, event_id.id)
     return serialize_models(events, EventOut)

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from migrations.database.models import Users, Events, Participations
 from migrations.database.models.credentials import CredentialTypes
 
@@ -7,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, and_, or_,delete, update
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from api.schemas.events import EventIn, EventNew, UserEvent, EventOut, UserEventKick
+from api.schemas.events import EventIn, EventNew, UserEvent, EventOut, UserEventKick, EventInOptional
 
 
 async def get_user_event(user: Users, event: EventIn, session: AsyncSession) -> Events:
@@ -26,11 +28,13 @@ async def get_user_event(user: Users, event: EventIn, session: AsyncSession) -> 
         raise InternalServerError(e) from e
 
 
-async def get_user_events(user: Users, session: AsyncSession) -> list[Events]:
+async def get_user_events(user: Users, session: AsyncSession, event_id: UUID = None) -> list[Events]:
     try:
         query = select(Events).where(
             Events.creator_id == str(user.id)
         )
+        if event_id:
+            query.where(Events.id == str(event_id))
         result = (await session.execute(query)).scalars().all()
         return result
     except IntegrityError as e:
